@@ -2,28 +2,39 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: pv-mongo
-  annotations:
-    pv.kubernetes.io/provisioned-by: ebs.csi.aws.com
 spec:
-  storageClassName: slow
+  storageClassName: standard
   capacity:
-    storage: 20G
+    storage: 50G
   accessModes:
     - ReadWriteOnce
-  csi:
-    driver: ebs.csi.aws.com
+  claimRef:
+    namespace: default
+    name: pvc-mongo
+  gcePersistentDisk:
+    pdName: test-1-300600-gke-0
     fsType: ext4
-    volumeHandle: vol-08c06cd7ca5d25288
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: failure-domain.beta.kubernetes.io/zone
+              operator: In
+              values:
+                - us-east1-c
+            - key: failure-domain.beta.kubernetes.io/region
+              operator: In
+              values:
+              - us-east1
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-mongo
-  namespace: default
 spec:
-  storageClassName: slow
+  storageClassName: standard
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20G
+      storage: 50G
